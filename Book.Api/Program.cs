@@ -1,9 +1,11 @@
-using Book.Api.Config;
 using Book.Api.Data;
+using Book.Api.Filters;
+using Book.Api.Models;
+using Book.Api.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -43,47 +45,53 @@ builder.Services.AddSwaggerGen(c => {
     });
 });
 
-
-
-builder.Services.AddDbContext<ApiDbContext>(opt =>
-    opt.UseSqlite(builder.Configuration.GetConnectionString("Default"))
-);
-
-//JWT Config
-builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
-
-// Validation params
-var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"]!);
-var tokenValidationParams = new TokenValidationParameters
+builder.Services.Configure<MvcOptions>(ops =>
 {
-    ValidateIssuerSigningKey = true,
-    IssuerSigningKey = new SymmetricSecurityKey(key),
-    ValidateIssuer = false,
-    ValidateAudience = false,
-    ValidateLifetime = true,
-    RequireExpirationTime = false
-};
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(jwt =>
-{
-
-    jwt.SaveToken = true;
-    jwt.TokenValidationParameters = tokenValidationParams;
+    ops.Filters.Add<JWTValidationFilter>();
 });
 
-builder.Services.AddSingleton(tokenValidationParams);
+builder.Services.AddMemoryCache();
 
-builder.Services.AddIdentityCore<IdentityUser>(options => { options.SignIn.RequireConfirmedAccount = true; })
-    .AddEntityFrameworkStores<ApiDbContext>();
+builder.Services.AddDbContext<ApiDbContext>(opt => {
+    string connStr = builder.Configuration.GetConnectionString("Default")!;
+    opt.UseSqlite(connStr);
+});
 
-//builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddDataProtection();
+builder.Services.AddIdentityCore<User>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+});
+var idBuilder = new IdentityBuilder(typeof(User), typeof(Role), builder.Services);
+idBuilder.AddEntityFrameworkStores<ApiDbContext>()
+    .AddDefaultTokenProviders()
+    .AddRoleManager<RoleManager<Role>>()
+    .AddUserManager<UserManager<User>>();
+builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(x =>
+{
+    var jwtOpt = builder.Configuration.GetSection("JWT").Get<JWTOptions>()??throw new ApplicationException("JWTOptions");
+    byte[] keyBytes = Encoding.UTF8.GetBytes(jwtOpt.SigningKey);
+    var secKey = new SymmetricSecurityKey(keyBytes);
+    x.TokenValidationParameters = new()
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = secKey
+    };
+});
 
 
+builder.Services.AddTransient<DbContextSeed>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -99,10 +107,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+await app.Services.GetRequiredService<DbContextSeed>().InitAsync();
 app.Run();
 
 
-//Add-migration initIndetity
-
-
-//update-database
