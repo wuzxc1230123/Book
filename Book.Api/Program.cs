@@ -3,11 +3,17 @@ using Book.Api.Filters;
 using Book.Api.Models;
 using Book.Api.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,6 +97,51 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 
 
+
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.RequestPath |
+                            HttpLoggingFields.ResponseStatusCode |
+                            HttpLoggingFields.RequestBody |
+                            HttpLoggingFields.ResponseBody;
+});
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resourceBuilder =>
+    {
+        resourceBuilder
+            .AddService("Book", "BookNamespace", "1.0.0")
+            .AddTelemetrySdk();
+    })
+    .WithTracing(tracerBuilder =>
+    {
+        tracerBuilder
+            .AddAspNetCoreInstrumentation(options =>
+            {
+                options.Filter =
+                    httpContent => httpContent.Request.Path.StartsWithSegments("/swagger") == false;
+            })
+            .AddHttpClientInstrumentation()
+            .AddSource("BookActivitySource")
+            .AddConsoleExporter();
+    }).WithMetrics(meterBuilder =>
+    {
+        meterBuilder
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddMeter("BookMeter")
+            .AddConsoleExporter(); 
+    });
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddOpenTelemetry(options =>
+    {
+        options.IncludeFormattedMessage = true;
+        options.AddConsoleExporter();
+    });
+});
+
+
 builder.Services.AddTransient<DbContextSeed>();
 var app = builder.Build();
 
@@ -100,6 +151,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
+app.UseHttpLogging();
 
 app.UseHttpsRedirection();
 
