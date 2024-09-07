@@ -1,4 +1,4 @@
-﻿using Book.Api.Dtos;
+﻿using Book.Api.Dtos.Auths;
 using Book.Api.Models;
 using Book.Api.Options;
 using Microsoft.AspNetCore.Identity;
@@ -20,7 +20,7 @@ public class AuthController(UserManager<User> userManager, IOptions<JWTOptions> 
     private readonly IOptions<JWTOptions> _jwtOptions = jwtOptions;
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginRequest input)
+    public async Task<IActionResult> Login(LoginInputDto input)
     {
         string userName = input.UserName;
         string password = input.Password;

@@ -17,6 +17,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
     }
+
+    public DbSet<Models.Book> Books { get; set; }
+
+    public DbSet<ShopCart> ShopCarts { get; set; }
 }
 //Add-migration initIndetity
 //update-database

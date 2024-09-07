@@ -13,7 +13,7 @@ public class TestController(ILogger<TestController> logger) : ControllerBase
 {
     private readonly ILogger<TestController> _logger = logger;
 
-    [HttpPost]
+    [HttpGet]
     public IActionResult Check()
     {
         _logger.LogInformation("/Test/Check called");
