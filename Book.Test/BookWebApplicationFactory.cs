@@ -20,7 +20,7 @@ public class BookWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<BookDbContextSeed>();
+            //services.AddSingleton<BookDbContextSeed>();
         });
 
         builder.UseEnvironment("Test");
