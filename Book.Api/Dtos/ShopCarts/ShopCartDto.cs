@@ -6,7 +6,7 @@ namespace Book.Api.Dtos.ShopCarts
     {
         public Guid Id { get; set; }
 
-        public BookDto Book { get; set; }
+        public BookDto Book { get; set; } = null!;
 
         public Guid UserId { get; set; }
 

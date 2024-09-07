@@ -13,7 +13,6 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,8 +58,8 @@ builder.Services.Configure<MvcOptions>(ops =>
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<ApiDbContext>(opt => {
-    string connStr = builder.Configuration.GetConnectionString("Default")!;
-    opt.UseSqlite(connStr);
+    //string connStr = builder.Configuration.GetConnectionString("Default")!;
+    opt.UseInMemoryDatabase("Db");
 });
 
 builder.Services.AddDataProtection();
@@ -142,7 +141,7 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 
 
-builder.Services.AddTransient<DbContextSeed>();
+builder.Services.AddSingleton<DbContextSeed>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -161,7 +160,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.Services.GetRequiredService<DbContextSeed>().InitAsync();
+app.Services.GetRequiredService<DbContextSeed>().InitAsync().Wait();
 app.Run();
 
 
+public partial class Program { }

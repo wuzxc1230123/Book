@@ -7,10 +7,9 @@ public class BookInputDto
 {
     [Required]
     public string Title { get; set; } = null!;
+   
     [Required]
-    public string Author { get; set; } = null!;
-
     public decimal Price { get; set; }
-
+    [Required]
     public CategoryType Category { get; set; }
 }

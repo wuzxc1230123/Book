@@ -52,8 +52,9 @@ public class ShopCartController(ApiDbContext apiDbContext) : ControllerBase
         return Ok();
     }
 
+
     [HttpPost]
-    public async Task<IActionResult> Add(Guid id, ShopCartInputDto input)
+    public async Task<IActionResult> Update(Guid id, ShopCartInputDto input)
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -68,9 +69,10 @@ public class ShopCartController(ApiDbContext apiDbContext) : ControllerBase
 
         return Ok();
     }
-    [Authorize]
+
+    
     [HttpPost]
-    public async Task<IActionResult> Update(DeleteDto input)
+    public async Task<IActionResult> Delete(DeleteDto input)
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 

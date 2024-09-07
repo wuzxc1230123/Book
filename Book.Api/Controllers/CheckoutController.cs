@@ -12,6 +12,7 @@ namespace Book.Api.Controllers;
 
 [Route("[controller]/[action]")]
 [ApiController]
+[Authorize]
 public class CheckoutController(ApiDbContext apiDbContext) : ControllerBase
 {
     private readonly ApiDbContext _apiDbContext = apiDbContext;

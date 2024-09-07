@@ -31,11 +31,13 @@ public class BookController(ApiDbContext apiDbContext) : ControllerBase
         {
             return NotFound($"标题存在{input.Title}");
         }
+        string userName = User.FindFirst(ClaimTypes.Name)!.Value;
+
         var book = new Models.Book()
         {
             Id = Guid.NewGuid(),
             Title = input.Title,
-            Author = input.Author,
+            Author = userName,
             Category = input.Category,
             Price = input.Price,
         };
@@ -58,8 +60,8 @@ public class BookController(ApiDbContext apiDbContext) : ControllerBase
         {
             return NotFound($"编号不存在{id}");
         }
-
-        book.Author = input.Author;
+        string userName = User.FindFirst(ClaimTypes.Name)!.Value;
+        book.Author = userName;
         book.Category = input.Category;
         book.Price = input.Price;
 
@@ -71,7 +73,7 @@ public class BookController(ApiDbContext apiDbContext) : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Update(DeleteDto input)
+    public async Task<IActionResult> Delete(DeleteDto input)
     {
 
         var books = await _apiDbContext.Books.Where(a => input.Ids.Contains(a.Id)).ToListAsync();
