@@ -63,4 +63,6 @@ public class AuthController(UserManager<User> userManager, IOptions<JWTOptions> 
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
     }
 
+
+
 }

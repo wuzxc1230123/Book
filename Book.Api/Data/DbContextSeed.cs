@@ -1,20 +1,13 @@
 ﻿using Book.Api.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Book.Api.Data;
 
-public class DbContextSeed(IServiceScopeFactory scopeFactory)
+public class DbContextSeed
 {
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-
-
-
-    public async Task InitAsync()
+    public async Task InitAsync(IServiceProvider serviceProvider)
     {
-        var scope = _scopeFactory.CreateScope();
-        var serviceProvider = scope.ServiceProvider;
-
-
         var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
         var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
         var RoleName = "admin";
@@ -23,38 +16,22 @@ public class DbContextSeed(IServiceScopeFactory scopeFactory)
         {
             return;
         }
+
+
         var role = new Role()
         {
             Name = RoleName,
             Id = Guid.NewGuid()
         };
         var roleResutl = await roleManager.CreateAsync(role);
-        if (!roleResutl.Succeeded)
+
+        var user = new User()
         {
-            return;
-        }
-        var olduser = await userManager.FindByNameAsync("Jero");
-        if (olduser == null)
-        {
-            var user = new User()
-            {
-                UserName = "Jero123456", 
-                Id = Guid.NewGuid()
-            };
-            var userResult = await userManager.CreateAsync(user, "Jero123456");
-            if (!userResult.Succeeded)
-            {
-                return;
-            }
-            var isinRole = await userManager.IsInRoleAsync(user, RoleName);
-            if (!isinRole)
-            {
-                var addResult = await userManager.AddToRoleAsync(user, RoleName);
-                if (!addResult.Succeeded)
-                {
-                    return;
-                }
-            }
-        }
+            UserName = "Jero123456",
+            Id = Guid.NewGuid()
+        };
+        var userResult = await userManager.CreateAsync(user, "Jero123456");
+
+        var addResult = await userManager.AddToRoleAsync(user, RoleName);
     }
 }

@@ -11,7 +11,9 @@ using Book.Api.Dtos.Books;
 namespace Book.Test;
 
 
-public class BookApiTest(BookWebApplicationFactory factory) : BookApiTestBase
+
+public class BookApiTest(BookWebApplicationFactory factory) : IClassFixture<BookWebApplicationFactory>
+
 {
     private readonly BookWebApplicationFactory _factory = factory;
 
@@ -21,13 +23,13 @@ public class BookApiTest(BookWebApplicationFactory factory) : BookApiTestBase
         //Arrange
         var httpClient = _factory.CreateClient();
         //act
-        await AddToken(httpClient,"Jero123456", "Jero123456");
+        //await AddToken(httpClient, "Jero123456", "Jero123456");
 
         var response = await httpClient.PostAsJsonAsync("/Book/Add", new BookInputDto()
         {
-            Title="Add_Book",
-            Category=  Api.Enums.CategoryType.Type1,
-             Price=5
+            Title = "Add_Book",
+            Category = Api.Enums.CategoryType.Type1,
+            Price = 5
         });
         //Assert
         //校验状态码

@@ -7,10 +7,14 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Book.Api.Dtos.Auths;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Book.Test;
 
-public class AuthApiTest(BookWebApplicationFactory factory) : BookApiTestBase
+
+
+public class AuthApiTest(BookWebApplicationFactory factory) : IClassFixture<BookWebApplicationFactory>
+
 {
     private readonly BookWebApplicationFactory _factory = factory;
 
@@ -37,6 +41,7 @@ public class AuthApiTest(BookWebApplicationFactory factory) : BookApiTestBase
     [Fact]
     public async Task Login_Found()
     {
+
         var httpClient = _factory.CreateClient();
 
         var response = await httpClient.PostAsJsonAsync("/Auth/Login", new LoginInputDto()

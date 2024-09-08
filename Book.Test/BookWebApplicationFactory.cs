@@ -11,16 +11,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Book.Api.Data;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Caching.Memory;
+using System.Data.Common;
 
 namespace Book.Test;
 
-public class BookWebApplicationFactory : WebApplicationFactory<Program>
+public class BookWebApplicationFactory : WebApplicationFactory<Program>,IDisposable
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
         {
-            //services.AddSingleton<BookDbContextSeed>();
+           
         });
 
         builder.UseEnvironment("Test");
@@ -37,7 +39,6 @@ public class BookWebApplicationFactory : WebApplicationFactory<Program>
     {
         return CreateDefaultClient();
     }
-
-   
+  
 }
 

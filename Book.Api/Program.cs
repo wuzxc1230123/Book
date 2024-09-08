@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Logs;
@@ -56,10 +57,9 @@ builder.Services.Configure<MvcOptions>(ops =>
 });
 
 builder.Services.AddMemoryCache();
-
+var inMemoryDatabaseRoot = new InMemoryDatabaseRoot();
 builder.Services.AddDbContext<ApiDbContext>(opt => {
-    //string connStr = builder.Configuration.GetConnectionString("Default")!;
-    opt.UseInMemoryDatabase("Db");
+    opt.UseInMemoryDatabase("Db", inMemoryDatabaseRoot);
 });
 
 builder.Services.AddDataProtection();
@@ -140,16 +140,28 @@ builder.Services.AddLogging(loggingBuilder =>
     });
 });
 
+builder.Services.AddTransient<DbContextSeed>();
+//builder.WebHost.UseUrls("http://*:9000");
 
-builder.Services.AddSingleton<DbContextSeed>();
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var scopedServices = scope.ServiceProvider;
+    var apiDbContext = scopedServices.GetRequiredService<ApiDbContext>();
+    var dbContextSeed = scopedServices.GetRequiredService<DbContextSeed>();
+    dbContextSeed.InitAsync(scopedServices).Wait();
+    apiDbContext.SaveChanges();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
+
 
 
 app.UseHttpLogging();
@@ -160,7 +172,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Services.GetRequiredService<DbContextSeed>().InitAsync().Wait();
+
 app.Run();
 
 

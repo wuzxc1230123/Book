@@ -6,12 +6,18 @@ using System.Net.Http.Json;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Book.Api.Data;
+using Microsoft.Extensions.DependencyInjection;
+using Book.Api.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Book.Test;
 
-public abstract class BookApiTestBase : IClassFixture<BookWebApplicationFactory>
+[CollectionDefinition("Book")]
+public abstract class BookApiTestBase : ICollectionFixture<BookWebApplicationFactory>
 {
-    public static async Task AddToken(HttpClient httpClient, string userName,string password)
+    public static async Task AddToken(HttpClient httpClient, string userName, string password)
     {
         var response = await httpClient.PostAsJsonAsync("/Auth/Login", new LoginInputDto()
         {
@@ -23,7 +29,9 @@ public abstract class BookApiTestBase : IClassFixture<BookWebApplicationFactory>
 
         var token = await response.Content.ReadAsStringAsync();
 
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
     }
+
+
 }
