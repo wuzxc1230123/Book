@@ -29,7 +29,9 @@ OpenTelemetry
 
 
 ### Quick Start
-Choose Book.Api£¬ Just run it directly.
+
+Choose Book.Api , Just run it directly
+
 UserName£ºJero123456 Password£ºJero123456
 
 
