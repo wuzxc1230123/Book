@@ -52,12 +52,25 @@ public class ShopCartApiTest(BookWebApplicationFactory factory) : IClassFixture<
         var httpClient = _factory.CreateClient();
         //act
         await BookWebApplicationFactory.AddToken(httpClient, "Jero123456", "Jero123456");
+        var list_Response = await httpClient.GetAsync("/Book/GetList");
 
-        var list_Response = await httpClient.GetAsync("/ShopCart/GetList");
+        var page = (await list_Response.Content.ReadFromJsonAsync<PageDto<BookDto>>())!;
 
-        var page = (await list_Response.Content.ReadFromJsonAsync<PageDto<ShopCartDto>>())!;
+        await BookWebApplicationFactory.AddToken(httpClient, "Jero123456", "Jero123456");
 
-        var shopCart = page.Items.First();
+        var book = page.Items.First();
+
+        await httpClient.PostAsJsonAsync("/ShopCart/Add", new ShopCartInputDto()
+        {
+            BookId = book.Id,
+            Size = 1
+        });
+
+        var list_Response2 = await httpClient.GetAsync("/ShopCart/GetList");
+
+        var page2 = (await list_Response2.Content.ReadFromJsonAsync<PageDto<ShopCartDto>>())!;
+
+        var shopCart = page2.Items.First();
 
         var response = await httpClient.PostAsJsonAsync($"/ShopCart/Update?id={shopCart.Id}", new ShopCartInputDto()
         {
@@ -77,12 +90,25 @@ public class ShopCartApiTest(BookWebApplicationFactory factory) : IClassFixture<
         //act
 
         await BookWebApplicationFactory.AddToken(httpClient, "Jero123456", "Jero123456");
+        var list_Response = await httpClient.GetAsync("/Book/GetList");
 
-        var list_Response = await httpClient.GetAsync("/ShopCart/GetList");
+        var page = (await list_Response.Content.ReadFromJsonAsync<PageDto<BookDto>>())!;
 
-        var page = (await list_Response.Content.ReadFromJsonAsync<PageDto<ShopCartDto>>())!;
+        await BookWebApplicationFactory.AddToken(httpClient, "Jero123456", "Jero123456");
 
-        var shopCart = page.Items.First();
+        var book = page.Items.First();
+
+        await httpClient.PostAsJsonAsync("/ShopCart/Add", new ShopCartInputDto()
+        {
+            BookId = book.Id,
+            Size = 1
+        });
+
+        var list_Response2 = await httpClient.GetAsync("/ShopCart/GetList");
+
+        var page2 = (await list_Response2.Content.ReadFromJsonAsync<PageDto<ShopCartDto>>())!;
+
+        var shopCart = page2.Items.First();
 
         var response = await httpClient.PostAsJsonAsync($"/ShopCart/Delete", new DeleteDto()
         {

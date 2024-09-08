@@ -105,7 +105,7 @@ public class ShopCartController(ApiDbContext apiDbContext) : ControllerBase
                 ItemTotal = 0,
             });
         }
-        var items = await shopCarts.Skip((input.PageNum - 1) * input.PageSize).Take(input.PageSize).ToListAsync();
+        var items = await shopCarts.Skip((input.PageNum - 1) * input.PageSize).Take(input.PageSize).Include(a=>a.Book).ToListAsync();
         return Ok(new PageDto<ShopCartDto>()
         {
             ItemTotal = count,
