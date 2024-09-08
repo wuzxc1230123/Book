@@ -87,7 +87,7 @@ public class BookController(ApiDbContext apiDbContext) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetList(BookPageInputDto input)
+    public async Task<IActionResult> GetList([FromQuery]BookPageInputDto input)
     {
         var books = _apiDbContext.Books.AsNoTracking();
         if (!string.IsNullOrEmpty(input.Title))

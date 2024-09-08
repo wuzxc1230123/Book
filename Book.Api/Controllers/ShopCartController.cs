@@ -58,7 +58,7 @@ public class ShopCartController(ApiDbContext apiDbContext) : ControllerBase
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        var shopCart = await _apiDbContext.ShopCarts.Where(a => a.Id == id && input.BookId == input.BookId).FirstOrDefaultAsync();
+        var shopCart = await _apiDbContext.ShopCarts.Where(a => a.Id == id && a.BookId == input.BookId && a.UserId== userId).FirstOrDefaultAsync();
         if (shopCart == null)
         {
             return NotFound($"编号不存在{id}");
@@ -86,7 +86,7 @@ public class ShopCartController(ApiDbContext apiDbContext) : ControllerBase
         return Ok();
     }
     [HttpGet]
-    public async Task<IActionResult> GetList(ShopCartPageInputDto input)
+    public async Task<IActionResult> GetList([FromQuery] ShopCartPageInputDto input)
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 

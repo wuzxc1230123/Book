@@ -14,7 +14,6 @@ namespace Book.Test;
 
 
 public class AuthApiTest(BookWebApplicationFactory factory) : IClassFixture<BookWebApplicationFactory>
-
 {
     private readonly BookWebApplicationFactory _factory = factory;
 

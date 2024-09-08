@@ -140,7 +140,6 @@ builder.Services.AddLogging(loggingBuilder =>
     });
 });
 
-builder.Services.AddTransient<DbContextSeed>();
 //builder.WebHost.UseUrls("http://*:9000");
 
 var app = builder.Build();
@@ -148,10 +147,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var scopedServices = scope.ServiceProvider;
-    var apiDbContext = scopedServices.GetRequiredService<ApiDbContext>();
-    var dbContextSeed = scopedServices.GetRequiredService<DbContextSeed>();
-    dbContextSeed.InitAsync(scopedServices).Wait();
-    apiDbContext.SaveChanges();
+    DbContextSeed.InitAsync(scopedServices).Wait();
 }
 
 // Configure the HTTP request pipeline.

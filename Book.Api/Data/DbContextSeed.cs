@@ -6,7 +6,7 @@ namespace Book.Api.Data;
 
 public class DbContextSeed
 {
-    public async Task InitAsync(IServiceProvider serviceProvider)
+    public  static async Task InitAsync(IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
         var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
@@ -23,15 +23,15 @@ public class DbContextSeed
             Name = RoleName,
             Id = Guid.NewGuid()
         };
-        var roleResutl = await roleManager.CreateAsync(role);
+        await roleManager.CreateAsync(role);
 
         var user = new User()
         {
             UserName = "Jero123456",
             Id = Guid.NewGuid()
         };
-        var userResult = await userManager.CreateAsync(user, "Jero123456");
+         await userManager.CreateAsync(user, "Jero123456");
 
-        var addResult = await userManager.AddToRoleAsync(user, RoleName);
+        await userManager.AddToRoleAsync(user, RoleName);
     }
 }
