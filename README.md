@@ -32,7 +32,7 @@ OpenTelemetry
 
 Choose Book.Api , Just run it directly
 
-UserName£ºJero123456 Password£ºJero123456
+UserName:Jero123456  Password:Jero123456
 
 
 ### Deploy
